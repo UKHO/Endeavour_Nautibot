@@ -80,7 +80,7 @@ const Sidebar = ({ conversations, onNewChat, onSelectConversation, currentConver
                                         <div className="sidebar__logo-icon">
                                             <MessageSquare size={24} />
                                         </div>
-                                        <span className="sidebar__logo-text">SeaWise AI</span>
+                                        <span className="sidebar__logo-text">SeaWise</span>
                                     </div>
                                     <button
                                         className="sidebar__close-button"

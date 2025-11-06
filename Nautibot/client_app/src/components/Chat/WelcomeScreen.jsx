@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
-import Card from '../UI/Card';
 import './WelcomeScreen.css';
 
-const WelcomeScreen = ({ onPromptClick, suggestedPrompts }) => {
+const WelcomeScreen = () => {
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -38,9 +37,9 @@ const WelcomeScreen = ({ onPromptClick, suggestedPrompts }) => {
                 <div className="welcome-screen__icon">
                     <Sparkles size={48} />
                 </div>
-                <h1 className="welcome-screen__title">Welcome to SeaWise AI</h1>
+                <h1 className="welcome-screen__title">Welcome to SeaWise</h1>
                 <p className="welcome-screen__subtitle">
-                    Your intelligent maritime assistant powered by SharePoint integration
+                    Your intelligent maritime assistant for navigation, safety, and compliance
                 </p>
             </motion.div>
 
@@ -57,7 +56,7 @@ const WelcomeScreen = ({ onPromptClick, suggestedPrompts }) => {
                     <div className="feature-card__icon">🔍</div>
                     <h3 className="feature-card__title">Smart Search</h3>
                     <p className="feature-card__description">
-                        Find relevant information across all your SharePoint libraries
+                        Find relevant information across your maritime knowledge sources
                     </p>
                 </div>
 
@@ -70,27 +69,6 @@ const WelcomeScreen = ({ onPromptClick, suggestedPrompts }) => {
                 </div>
             </motion.div>
 
-            <motion.div className="welcome-screen__prompts" variants={itemVariants}>
-                <h2 className="welcome-screen__prompts-title">Try asking...</h2>
-                <div className="welcome-screen__prompts-grid">
-                    {suggestedPrompts.map((prompt, index) => (
-                        <motion.div
-                            key={index}
-                            whileHover={{ scale: 1.02, y: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <Card
-                                hover
-                                padding="medium"
-                                className="prompt-card"
-                                onClick={() => onPromptClick(prompt)}
-                            >
-                                <p className="prompt-card__text">{prompt}</p>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </div>
-            </motion.div>
         </motion.div>
     );
 };

@@ -8,14 +8,6 @@ import InteractiveBackground from '../components/UI/InteractiveBackground';
 import { askQuestion } from '../utils/api';
 import './ChatPage.css';
 
-const SUGGESTED_PROMPTS = [
-    'Show me the latest navigation charts',
-    'What are the current safety protocols?',
-    'Summarise the most recent fleet management report',
-    'Find compliance guidance for inspections',
-    'Explain the newest maritime regulations updates'
-];
-
 const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [isTyping, setIsTyping] = useState(false);
@@ -156,10 +148,6 @@ const ChatPage = () => {
         }
     };
 
-    const handlePromptClick = (prompt) => {
-        handleSendMessage(prompt);
-    };
-
     const handleNewChat = () => {
         setMessages([]);
         setCurrentConversationId(null);
@@ -184,10 +172,7 @@ const ChatPage = () => {
             <div className="chat-page__main">
                 <div className="chat-page__messages-container">
                     {messages.length === 0 ? (
-                        <WelcomeScreen
-                            onPromptClick={handlePromptClick}
-                            suggestedPrompts={SUGGESTED_PROMPTS}
-                        />
+                        <WelcomeScreen />
                     ) : (
                         <div className="chat-page__messages">
                             <AnimatePresence mode="popLayout">
