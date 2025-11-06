@@ -19,7 +19,7 @@ namespace api.Controllers
         {
             try
             {
-                var response = await _chatService.Ask(request.Question);
+                var response = await _chatService.Ask(request.Question, request.threadId);
 
                 return Ok(new { Results = response });
             }
@@ -32,6 +32,7 @@ namespace api.Controllers
 
     public class ChatRequest
     {
+        public string? threadId { get; set; }
         public required string Question { get; set; }
     }
 }

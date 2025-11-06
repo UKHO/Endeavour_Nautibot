@@ -1,4 +1,5 @@
 ﻿using api.Config;
+using api.Models;
 using Azure;
 using Azure.AI.Agents.Persistent;
 using Azure.AI.OpenAI;
@@ -31,7 +32,7 @@ public class ChatService : IChatService
         _config = config.Value;
     }
 
-    private async Task<List<string>> AskQuestion(string question)
+    private async Task<ChatResponse> AskQuestion(string question, string threadId = null)
     {
         var endpoint = new Uri("https://atomb-mhnaki12-eastus2.services.ai.azure.com/api/projects/atomb-mhnaki12-eastus2-project");
         AIProjectClient projectClient = new(endpoint, new DefaultAzureCredential());
@@ -40,23 +41,27 @@ public class ChatService : IChatService
 
         PersistentAgent agent = agentsClient.Administration.GetAgent("asst_7Fz2ZgLg0EphMwSkLW8qNTtt");
 
-        PersistentAgentThread thread = agentsClient.Threads.CreateThread();
-        Console.WriteLine($"Created thread, ID: {thread.Id}");
+        string threadIdToUse = threadId;
+        if (string.IsNullOrEmpty(threadId))
+        {
+            PersistentAgentThread thread = agentsClient.Threads.CreateThread();
+            threadIdToUse = thread.Id;
+        }
 
         PersistentThreadMessage messageResponse = agentsClient.Messages.CreateMessage(
-            thread.Id,
+            threadIdToUse,
             MessageRole.User,
             question);
 
         ThreadRun run = agentsClient.Runs.CreateRun(
-            thread.Id,
+            threadIdToUse,
             agent.Id);
 
         // Poll until the run reaches a terminal status
         do
         {
             await Task.Delay(TimeSpan.FromMilliseconds(500));
-            run = agentsClient.Runs.GetRun(thread.Id, run.Id);
+            run = agentsClient.Runs.GetRun(threadIdToUse, run.Id);
         }
         while (run.Status == RunStatus.Queued
             || run.Status == RunStatus.InProgress);
@@ -66,7 +71,7 @@ public class ChatService : IChatService
         }
 
         Pageable<PersistentThreadMessage> messages = agentsClient.Messages.GetMessages(
-            thread.Id, order: ListSortOrder.Ascending);
+            threadIdToUse, order: ListSortOrder.Ascending);
 
         var messageList = new List<string>();
 
@@ -80,26 +85,29 @@ public class ChatService : IChatService
                 {
                     messageList.Add(textItem.Text);
                 }
-                //else if (contentItem is MessageImageFileContent imageFileItem)
-                //{
-                //    Console.Write($"<image from ID: {imageFileItem.FileId}");
-                //}
-                //Console.WriteLine();
             }
         }
         if(messageList.Any())
         {
-            return messageList;
+            return new ChatResponse
+            {
+                ThreadId = threadIdToUse,
+                Message = messageList.Last()
+            };
         }
-        messageList.Add( "I dont know!");
-        return messageList;
+   
+        return new ChatResponse
+        {
+            ThreadId = threadIdToUse,
+            Message = "I dont know!"
+        };
     }
 
-    public async Task<string> Ask(string question)
+    public async Task<ChatResponse> Ask(string question, string threadId = null)
     {
         try
         {
-            return (await AskQuestion(question)).Last();
+            return await AskQuestion(question, threadId);
         }
         catch (CredentialUnavailableException ex)
         {

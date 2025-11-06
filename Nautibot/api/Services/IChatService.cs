@@ -1,7 +1,9 @@
 ﻿
+using api.Models;
+
 namespace api.Services;
 
 public interface IChatService
 {
-    Task<string> Ask(string question);
+    Task<ChatResponse> Ask(string question, string threadId = null);
 }
