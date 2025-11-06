@@ -29,6 +29,8 @@ const ChatPage = () => {
         if (!trimmedMessage) return;
 
         const conversationId = currentConversationId ?? `conv-${Date.now()}`;
+        const existingConversation = conversations.find(conv => conv.id === conversationId);
+        const existingThreadId = existingConversation?.threadId ?? null;
         const existingHistory = conversationMessages[conversationId] ?? (conversationId === currentConversationId ? messages : []);
 
         const userMessage = {
@@ -56,7 +58,8 @@ const ChatPage = () => {
                     id: conversationId,
                     title: title || 'New conversation',
                     preview: trimmedMessage,
-                    timestamp
+                    timestamp,
+                    threadId: existingThreadId
                 };
                 return [newConversation, ...prev];
             }
@@ -73,13 +76,33 @@ const ChatPage = () => {
         setIsTyping(true);
 
         try {
-            const apiResponse = await askQuestion(trimmedMessage);
+            const apiResponse = await askQuestion(trimmedMessage, existingThreadId);
             const results = apiResponse?.results ?? apiResponse?.Results;
-            const answer = typeof results === 'string'
-                ? results
-                : Array.isArray(results)
-                    ? results.join('\n')
-                    : 'I could not understand the response from the server.';
+
+            let threadIdFromResponse = null;
+            let answer = null;
+
+            if (results && typeof results === 'object' && !Array.isArray(results)) {
+                threadIdFromResponse = results.threadId ?? results.ThreadId ?? null;
+                const messagePayload = results.message ?? results.Message;
+                if (typeof messagePayload === 'string') {
+                    answer = messagePayload;
+                } else if (Array.isArray(messagePayload)) {
+                    answer = messagePayload.join('\n');
+                }
+            }
+
+            if (!answer) {
+                if (typeof results === 'string') {
+                    answer = results;
+                } else if (Array.isArray(results)) {
+                    answer = results.join('\n');
+                } else if (results && typeof results === 'object') {
+                    answer = JSON.stringify(results);
+                } else {
+                    answer = 'I could not understand the response from the server.';
+                }
+            }
 
             const botMessage = {
                 id: `bot-${Date.now()}`,
@@ -108,7 +131,8 @@ const ChatPage = () => {
                 const updatedConversation = {
                     ...prev[existingIndex],
                     preview: previewText,
-                    timestamp
+                    timestamp,
+                    threadId: threadIdFromResponse ?? prev[existingIndex].threadId ?? existingThreadId
                 };
 
                 return [updatedConversation, ...prev.filter((_, index) => index !== existingIndex)];
