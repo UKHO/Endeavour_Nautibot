@@ -41,7 +41,7 @@ const ChatInput = ({ onSendMessage, disabled = false }) => {
                         onKeyDown={handleKeyDown}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setIsFocused(false)}
-                        placeholder="Ask me anything about your documents..."
+                        placeholder="Ask me anything..."
                         rows={1}
                         disabled={disabled}
                     />
