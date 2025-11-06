@@ -82,10 +82,11 @@ const ChatPage = () => {
 
         try {
             const apiResponse = await askQuestion(trimmedMessage);
-            const answer = typeof apiResponse?.Results === 'string'
-                ? apiResponse.Results
-                : Array.isArray(apiResponse?.Results)
-                    ? apiResponse.Results.join('\n')
+            const results = apiResponse?.results ?? apiResponse?.Results;
+            const answer = typeof results === 'string'
+                ? results
+                : Array.isArray(results)
+                    ? results.join('\n')
                     : 'I could not understand the response from the server.';
 
             const botMessage = {
