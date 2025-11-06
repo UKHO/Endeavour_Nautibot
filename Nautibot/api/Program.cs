@@ -1,6 +1,13 @@
+using api;
+using api.Config;
+using api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<ChatConfig>(builder.Configuration.GetSection("ChatConfig"));
+
 // Add services to the container.
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
