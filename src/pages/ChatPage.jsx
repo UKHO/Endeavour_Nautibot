@@ -5,18 +5,23 @@ import ChatInput from '../components/Chat/ChatInput';
 import WelcomeScreen from '../components/Chat/WelcomeScreen';
 import Sidebar from '../components/Sidebar/Sidebar';
 import InteractiveBackground from '../components/UI/InteractiveBackground';
-import {
-    dummyConversations,
-    suggestedPrompts
-} from '../utils/dummyData';
 import { askQuestion } from '../utils/api';
 import './ChatPage.css';
+
+const SUGGESTED_PROMPTS = [
+    'Show me the latest navigation charts',
+    'What are the current safety protocols?',
+    'Summarise the most recent fleet management report',
+    'Find compliance guidance for inspections',
+    'Explain the newest maritime regulations updates'
+];
 
 const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [isTyping, setIsTyping] = useState(false);
-    const [conversations] = useState(dummyConversations);
+    const [conversations, setConversations] = useState([]);
     const [currentConversationId, setCurrentConversationId] = useState(null);
+    const [conversationMessages, setConversationMessages] = useState({});
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -28,21 +33,56 @@ const ChatPage = () => {
     }, [messages, isTyping]);
 
     const handleSendMessage = async (messageText) => {
-        if (!messageText || !messageText.trim()) return;
+        const trimmedMessage = messageText?.trim();
+        if (!trimmedMessage) return;
 
         // Add user message immediately
+        const conversationId = currentConversationId ?? `conv-${Date.now()}`;
+        const existingHistory = conversationMessages[conversationId] ?? (conversationId === currentConversationId ? messages : []);
+
         const userMessage = {
             id: `user-${Date.now()}`,
-            text: messageText.trim(),
+            text: trimmedMessage,
             isUser: true,
             timestamp: new Date(),
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        const nextHistory = [...existingHistory, userMessage];
+
+        setCurrentConversationId(conversationId);
+        setMessages(nextHistory);
+        setConversationMessages(prev => ({
+            ...prev,
+            [conversationId]: nextHistory
+        }));
+
+        setConversations(prev => {
+            const existingIndex = prev.findIndex(conv => conv.id === conversationId);
+            const timestamp = new Date();
+            if (existingIndex === -1) {
+                const title = trimmedMessage.length > 60 ? `${trimmedMessage.slice(0, 60)}…` : trimmedMessage;
+                const newConversation = {
+                    id: conversationId,
+                    title: title || 'New conversation',
+                    preview: trimmedMessage,
+                    timestamp
+                };
+                return [newConversation, ...prev];
+            }
+
+            const updatedConversation = {
+                ...prev[existingIndex],
+                preview: trimmedMessage,
+                timestamp
+            };
+
+            return [updatedConversation, ...prev.filter((_, index) => index !== existingIndex)];
+        });
+
         setIsTyping(true);
 
         try {
-            const apiResponse = await askQuestion(messageText.trim());
+            const apiResponse = await askQuestion(trimmedMessage);
             const answer = typeof apiResponse?.Results === 'string'
                 ? apiResponse.Results
                 : Array.isArray(apiResponse?.Results)
@@ -56,7 +96,31 @@ const ChatPage = () => {
                 timestamp: new Date(),
             };
 
-            setMessages(prev => [...prev, botMessage]);
+            const finalHistory = [...nextHistory, botMessage];
+
+            setMessages(finalHistory);
+            setConversationMessages(prev => ({
+                ...prev,
+                [conversationId]: finalHistory
+            }));
+
+            setConversations(prev => {
+                const existingIndex = prev.findIndex(conv => conv.id === conversationId);
+                const timestamp = new Date();
+                const previewText = answer.split('\n')[0];
+
+                if (existingIndex === -1) {
+                    return prev;
+                }
+
+                const updatedConversation = {
+                    ...prev[existingIndex],
+                    preview: previewText,
+                    timestamp
+                };
+
+                return [updatedConversation, ...prev.filter((_, index) => index !== existingIndex)];
+            });
         } catch (err) {
             const botMessage = {
                 id: `bot-error-${Date.now()}`,
@@ -65,7 +129,28 @@ const ChatPage = () => {
                 timestamp: new Date(),
             };
 
-            setMessages(prev => [...prev, botMessage]);
+            const erroredHistory = [...nextHistory, botMessage];
+
+            setMessages(erroredHistory);
+            setConversationMessages(prev => ({
+                ...prev,
+                [conversationId]: erroredHistory
+            }));
+
+            setConversations(prev => {
+                const existingIndex = prev.findIndex(conv => conv.id === conversationId);
+                if (existingIndex === -1) {
+                    return prev;
+                }
+
+                const updatedConversation = {
+                    ...prev[existingIndex],
+                    preview: botMessage.text,
+                    timestamp: new Date()
+                };
+
+                return [updatedConversation, ...prev.filter((_, index) => index !== existingIndex)];
+            });
         } finally {
             setIsTyping(false);
         }
@@ -82,9 +167,8 @@ const ChatPage = () => {
 
     const handleSelectConversation = (conversationId) => {
         setCurrentConversationId(conversationId);
-        // In a real app, you would load the conversation messages here
-        // For now, we'll just clear messages as it's a dummy implementation
-        setMessages([]);
+        const history = conversationMessages[conversationId] ?? [];
+        setMessages(history);
     };
 
     return (
@@ -102,7 +186,7 @@ const ChatPage = () => {
                     {messages.length === 0 ? (
                         <WelcomeScreen
                             onPromptClick={handlePromptClick}
-                            suggestedPrompts={suggestedPrompts}
+                            suggestedPrompts={SUGGESTED_PROMPTS}
                         />
                     ) : (
                         <div className="chat-page__messages">
