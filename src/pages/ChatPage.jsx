@@ -19,10 +19,10 @@ const ChatPage = () => {
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     };
-    id: `bot-${Date.now()}`,
-        useEffect(() => {
-            scrollToBottom();
-        }, [messages, isTyping]);
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, isTyping]);
 
     const handleSendMessage = async (messageText) => {
         const trimmedMessage = messageText?.trim();
