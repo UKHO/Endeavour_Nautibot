@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import ChatMessage from '../components/Chat/ChatMessage';
 import ChatInput from '../components/Chat/ChatInput';
 import WelcomeScreen from '../components/Chat/WelcomeScreen';
@@ -7,10 +7,9 @@ import Sidebar from '../components/Sidebar/Sidebar';
 import InteractiveBackground from '../components/UI/InteractiveBackground';
 import {
     dummyConversations,
-    suggestedPrompts,
-    getRandomResponse,
-    simulateTypingDelay
+    suggestedPrompts
 } from '../utils/dummyData';
+import { askQuestion } from '../utils/api';
 import './ChatPage.css';
 
 const ChatPage = () => {
@@ -28,7 +27,7 @@ const ChatPage = () => {
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSendMessage = (messageText) => {
+    const handleSendMessage = async (messageText) => {
         if (!messageText || !messageText.trim()) return;
 
         // Add user message immediately
@@ -42,21 +41,34 @@ const ChatPage = () => {
         setMessages(prev => [...prev, userMessage]);
         setIsTyping(true);
 
-        // Simulate bot response
-        const response = getRandomResponse();
-        const delay = simulateTypingDelay(response.text);
+        try {
+            const apiResponse = await askQuestion(messageText.trim());
+            const answer = typeof apiResponse?.Results === 'string'
+                ? apiResponse.Results
+                : Array.isArray(apiResponse?.Results)
+                    ? apiResponse.Results.join('\n')
+                    : 'I could not understand the response from the server.';
 
-        setTimeout(() => {
             const botMessage = {
                 id: `bot-${Date.now()}`,
-                text: response.text,
+                text: answer,
                 isUser: false,
                 timestamp: new Date(),
             };
 
             setMessages(prev => [...prev, botMessage]);
+        } catch (err) {
+            const botMessage = {
+                id: `bot-error-${Date.now()}`,
+                text: 'Sorry, something went wrong while contacting the assistant. Please try again in a moment.',
+                isUser: false,
+                timestamp: new Date(),
+            };
+
+            setMessages(prev => [...prev, botMessage]);
+        } finally {
             setIsTyping(false);
-        }, delay);
+        }
     };
 
     const handlePromptClick = (prompt) => {

@@ -10,6 +10,7 @@ using OpenAI.Assistants;
 using OpenAI.Chat;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static System.Environment;
 using MessageContent = Azure.AI.Agents.Persistent.MessageContent;
@@ -96,7 +97,18 @@ public class ChatService : IChatService
 
     public async Task<string> Ask(string question)
     {
-        return (await AskQuestion(question)).Last();
+        try
+        {
+            return (await AskQuestion(question)).Last();
+        }
+        catch (CredentialUnavailableException ex)
+        {
+            throw new InvalidOperationException("Azure credentials are unavailable. Sign in with 'az login' or configure the appropriate environment variables for DefaultAzureCredential.", ex);
+        }
+        catch (AuthenticationFailedException ex)
+        {
+            throw new InvalidOperationException("Authentication with Azure OpenAI failed. Ensure your identity has access to the project and the correct permissions.", ex);
+        }
     }
 }
 

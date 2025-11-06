@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Azure.Search.Documents;
-using Azure.Search.Documents.Models;
-using Azure;
+﻿using Microsoft.AspNetCore.Mvc;
 using api.Services;
 
 namespace api.Controllers
@@ -11,10 +7,9 @@ namespace api.Controllers
     [ApiController]
     public class ChatController : ControllerBase
     {
-        private readonly SearchClient _searchClient;
         private readonly IChatService _chatService;
 
-        public ChatController(IConfiguration configuration, IChatService service)
+        public ChatController(IChatService service)
         {
             _chatService = service;
         }
@@ -37,6 +32,6 @@ namespace api.Controllers
 
     public class ChatRequest
     {
-        public string Question { get; set; }
+        public required string Question { get; set; }
     }
 }
