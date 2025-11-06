@@ -1,0 +1,60 @@
+.admiralty-card {
+  background: var(--admiralty-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  border: 1px solid var(--admiralty-gray-200);
+}
+
+/* Variants */
+.admiralty-card--default {
+  background: var(--admiralty-white);
+}
+
+.admiralty-card--elevated {
+  box-shadow: var(--shadow-lg);
+}
+
+.admiralty-card--bordered {
+  border: 2px solid var(--admiralty-navy);
+}
+
+.admiralty-card--glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Padding */
+.admiralty-card--padding-none {
+  padding: 0;
+}
+
+.admiralty-card--padding-small {
+  padding: var(--spacing-md);
+}
+
+.admiralty-card--padding-medium {
+  padding: var(--spacing-lg);
+}
+
+.admiralty-card--padding-large {
+  padding: var(--spacing-xl);
+}
+
+/* States */
+.admiralty-card--hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.admiralty-card--clickable {
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.admiralty-card--clickable:active {
+  transform: scale(0.98);
+}

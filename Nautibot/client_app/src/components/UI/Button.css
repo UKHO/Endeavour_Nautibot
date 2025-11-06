@@ -1,0 +1,109 @@
+.admiralty-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Variants */
+.admiralty-button--primary {
+  background: linear-gradient(135deg, var(--admiralty-navy) 0%, var(--admiralty-navy-medium) 100%);
+  color: var(--admiralty-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.admiralty-button--primary:hover:not(.admiralty-button--disabled) {
+  background: linear-gradient(135deg, var(--admiralty-navy-medium) 0%, var(--admiralty-blue) 100%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.admiralty-button--secondary {
+  background: var(--admiralty-white);
+  color: var(--admiralty-navy);
+  border: 2px solid var(--admiralty-navy);
+  box-shadow: var(--shadow-sm);
+}
+
+.admiralty-button--secondary:hover:not(.admiralty-button--disabled) {
+  background: var(--admiralty-gray-50);
+  border-color: var(--admiralty-navy-medium);
+  box-shadow: var(--shadow-md);
+}
+
+.admiralty-button--ghost {
+  background: transparent;
+  color: var(--admiralty-navy);
+}
+
+.admiralty-button--ghost:hover:not(.admiralty-button--disabled) {
+  background: var(--admiralty-gray-100);
+}
+
+.admiralty-button--danger {
+  background: var(--admiralty-error);
+  color: var(--admiralty-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.admiralty-button--danger:hover:not(.admiralty-button--disabled) {
+  background: #d32f2f;
+  box-shadow: var(--shadow-md);
+}
+
+/* Sizes */
+.admiralty-button--small {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+.admiralty-button--medium {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+}
+
+.admiralty-button--large {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-lg);
+}
+
+/* States */
+.admiralty-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admiralty-button--full-width {
+  width: 100%;
+}
+
+/* Icon */
+.admiralty-button__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admiralty-button__text {
+  display: flex;
+  align-items: center;
+}
+
+/* Focus */
+.admiralty-button:focus-visible {
+  outline: 2px solid var(--admiralty-blue);
+  outline-offset: 2px;
+}
