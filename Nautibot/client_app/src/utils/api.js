@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:5180';
+const API_BASE_URL = import.meta.env?.VITE_API_URL || 'https://seawiseapi-hvhddkh8auajhnhn.uksouth-01.azurewebsites.net';
 
 /**
  * Send a question to the chat API and return the typed response payload.
